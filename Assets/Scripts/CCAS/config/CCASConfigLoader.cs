@@ -6,7 +6,7 @@ public static class CCASConfigLoader
 {
     public static T Load<T>(string fileName)
     {
-        string path = Path.Combine(Application.streamingAssetsPath, fileName);
+        string path = Path.Combine(Application.streamingAssetsPath, "CCAS", fileName);
         if (!File.Exists(path))
         {
             Debug.LogError($"[CCASConfigLoader] Missing config: {path}");

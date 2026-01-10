@@ -25,11 +25,11 @@ public class DropConfigManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Loads phase1_config.json from StreamingAssets.
+    /// Loads phase1_config.json from StreamingAssets/CCAS.
     /// </summary>
     void LoadConfig()
     {
-        string path = Path.Combine(Application.streamingAssetsPath, "phase1_config.json");
+        string path = Path.Combine(Application.streamingAssetsPath, "CCAS", "phase1_config.json");
 
         if (!File.Exists(path))
         {

@@ -30,11 +30,11 @@ public class CardCatalogLoader : MonoBehaviour
     }
 
     /// <summary>
-    /// Loads cards_catalog.json from StreamingAssets.
+    /// Loads cards_catalog.json from StreamingAssets/CCAS.
     /// </summary>
     void LoadCatalog()
     {
-        string path = Path.Combine(Application.streamingAssetsPath, "cards_catalog.json");
+        string path = Path.Combine(Application.streamingAssetsPath, "CCAS", "cards_catalog.json");
 
         if (!File.Exists(path))
         {
