@@ -497,10 +497,14 @@ public static class CoachesService
         if (s.StartsWith("duplicate_card"))
             return null;
 
+        // coaches_bonus_config.json keys match-outcome rules as "win"/"loss" (see
+        // commit 2877954, "update XP bonus config source string from match_win to
+        // win") - this must match that, not the drill-type buckets below, or the
+        // per-coach bonus silently never fires for match XP.
         if (s.Contains("match") && s.Contains("win"))
-            return "offensive_drill";
+            return "win";
         if (s.Contains("match") && s.Contains("loss"))
-            return "defensive_drill";
+            return "loss";
 
         if (s.Contains("offensive") || s.Contains("offence") || s.Contains("offense_drill"))
             return "offensive_drill";
