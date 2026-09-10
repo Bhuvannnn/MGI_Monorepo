@@ -13,6 +13,8 @@ public class AppManager : MonoBehaviour
     public GameObject coachHiringScreen;
     public GameObject coachDetailsScreen;
     public GameObject performanceScreen;
+    public GameObject historyScreen;
+    public GameObject compareScreen;
 
     [Header("Navigation Buttons for Screen 1")]
 
@@ -50,6 +52,11 @@ public class AppManager : MonoBehaviour
     [Header("Navigation Buttons for Screen 4")]
     public Button backButton;
     public Button detailedStatsButton;
+    public Button compareBackButton;
+
+    [Header("Navigation Button for History Screen")]
+    public Button historyBackButton;
+
     private void Start()
     {
         if (viewOffenseCoachButton != null)
@@ -105,7 +112,7 @@ public class AppManager : MonoBehaviour
         if (performanceButton != null)
             performanceButton.onClick.AddListener(() => ShowScreen(performanceScreen));
         if (historyButton != null)
-            historyButton.onClick.AddListener(() => Debug.Log("History button was clicked"));
+            historyButton.onClick.AddListener(() => ShowScreen(historyScreen));
 
         if (backToMainMenuButton != null)
             backToMainMenuButton.onClick.AddListener(() => ShowScreen(mainMenu));
@@ -115,7 +122,8 @@ public class AppManager : MonoBehaviour
         if (hireCoach1Button != null)
             hireCoach1Button.onClick.AddListener(() => Debug.Log("Hire Coach 1 button was clicked"));
         if (compareCoach1Button != null)
-            compareCoach1Button.onClick.AddListener(() => Debug.Log("Compare Coach 1 button was clicked"));
+            compareCoach1Button.onClick.AddListener(() =>
+                OpenCompareScreen(coachHiringScreen?.GetComponent<CoachHiringMarket>()?.GetCoach(1)));
         if (viewCoach1Button != null)
             viewCoach1Button.onClick.AddListener(() =>
             {
@@ -129,7 +137,8 @@ public class AppManager : MonoBehaviour
         if (hireCoach2Button != null)
             hireCoach2Button.onClick.AddListener(() => Debug.Log("Hire Coach 2 button was clicked"));
         if (compareCoach2Button != null)
-            compareCoach2Button.onClick.AddListener(() => Debug.Log("Compare Coach 2 button was clicked"));
+            compareCoach2Button.onClick.AddListener(() =>
+                OpenCompareScreen(coachHiringScreen?.GetComponent<CoachHiringMarket>()?.GetCoach(2)));
         if (viewCoach2Button != null)
             viewCoach2Button.onClick.AddListener(() =>
             {
@@ -141,14 +150,19 @@ public class AppManager : MonoBehaviour
             });
 
         if (compareButton != null)
-            compareButton.onClick.AddListener(() => Debug.Log("Compare button was clicked"));
+            compareButton.onClick.AddListener(() =>
+                OpenCompareScreen(coachDetailsScreen?.GetComponentInChildren<CoachProfilePopulator>(true)?.CurrentRecord));
         if (backToMarketButton != null)
             backToMarketButton.onClick.AddListener(() => ShowScreen(coachHiringScreen));
+        if (compareBackButton != null)
+            compareBackButton.onClick.AddListener(() => ShowScreen(coachHiringScreen));
         if (hireButton != null)
             hireButton.onClick.AddListener(() => Debug.Log("Hire button was clicked"));
 
         if (backButton != null)
             backButton.onClick.AddListener(() => ShowScreen(mainMenu));
+        if (historyBackButton != null)
+            historyBackButton.onClick.AddListener(() => ShowScreen(mainMenu));
         if (detailedStatsButton != null)
             detailedStatsButton.onClick.AddListener(() => Debug.Log("Detailed Stats button was clicked"));
 
@@ -156,21 +170,23 @@ public class AppManager : MonoBehaviour
         UpdateTeamRating();
     }
 
-    private void OnEnable()
+        private void OpenCompareScreen(CoachDatabaseRecord candidate)
     {
-        hireSubscription = EventBus.Subscribe("hire_coach", OnCoachChanged);
-        fireSubscription = EventBus.Subscribe("fire_coach", OnCoachChanged);
-    }
+        if (candidate == null) return;
 
-    private void OnDisable()
-    {
-        hireSubscription?.Dispose();
-        fireSubscription?.Dispose();
-    }
+        var state = CoachesService.GetTeamState();
+        string slottedId = candidate.coach_type switch
+        {
+            "O" => state?.offence_coach,
+            "D" => state?.defence_coach,
+            "S" => state?.special_teams_coach,
+            _ => null
+        };
+        var slotted = !string.IsNullOrEmpty(slottedId) ? CoachesService.GetCoachById(slottedId) : null;
 
-    private void OnCoachChanged(EventBus.EventEnvelope evt)
-    {
-        UpdateTeamRating();
+        var populator = compareScreen?.GetComponentInChildren<CoachComparePopulator>(true);
+        populator?.Populate(candidate, slotted);
+        ShowScreen(compareScreen);
     }
 
     private void UpdateTeamRating()
@@ -182,13 +198,17 @@ public class AppManager : MonoBehaviour
         }
     }
 
-    private void ShowScreen(GameObject targetScreen)
+        private void ShowScreen(GameObject targetScreen)
     {
         // Deactivate all
         mainMenu.SetActive(false);
         coachHiringScreen.SetActive(false);
         coachDetailsScreen.SetActive(false);
         performanceScreen.SetActive(false);
+        if (historyScreen != null)
+            historyScreen.SetActive(false);
+        if (compareScreen != null)
+            compareScreen.SetActive(false);
 
         // Activate the one you want
         if (targetScreen != null)
